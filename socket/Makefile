@@ -3,9 +3,10 @@ CFLAGS   = -Wall -O2 -fPIC
 LDFLAGS  =
 LDLIBS   = -ldl
 
-SRCDIR   = src
-OUTDIR   = out
-LIBDIR   = ../lib
+MAKEFILE_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
+SRCDIR   = $(MAKEFILE_DIR)/src
+OUTDIR   = $(MAKEFILE_DIR)/out
+LIBDIR   = $(MAKEFILE_DIR)/../lib
 
 SRC_LIB  := $(SRCDIR)/socket_iface.c
 SRC_BIN  := $(SRCDIR)/socket.c $(SRC_LIB)

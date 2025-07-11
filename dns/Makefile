@@ -2,9 +2,10 @@ CC       = gcc
 CFLAGS   = -Wall -O2 -fPIC
 LDFLAGS  =
 
-SRCDIR   = src
-OUTDIR   = out
-LIBDIR   = ../lib
+MAKEFILE_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
+SRCDIR   = $(MAKEFILE_DIR)/src
+OUTDIR   = $(MAKEFILE_DIR)/out
+LIBDIR   = $(MAKEFILE_DIR)/../lib
 
 SRC_LIB  := $(SRCDIR)/iface.c
 SRC_BIN  := $(SRCDIR)/dns.c $(SRC_LIB)
