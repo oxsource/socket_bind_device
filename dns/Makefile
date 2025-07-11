@@ -1,37 +1,38 @@
-CC = gcc
-CFLAGS = -Wall -O2
-LDFLAGS =
+CC       = gcc
+CFLAGS   = -Wall -O2 -fPIC
+LDFLAGS  =
 
-SRCDIR = src
-OUTDIR = out
+SRCDIR   = src
+OUTDIR   = out
+LIBDIR   = ../lib
 
-DNS_SRC = $(SRCDIR)/dns.c
-IFACE_SRC = $(SRCDIR)/iface.c
-IFACE_HDR = $(SRCDIR)/iface.h
+SRC_LIB  := $(SRCDIR)/iface.c
+SRC_BIN  := $(SRCDIR)/dns.c $(SRC_LIB)
 
-TARGET_EXE = $(OUTDIR)/dns
-TARGET_SO  = $(OUTDIR)/libdnsiface.so
+BIN_NAME = dns
+LIB_NAME = libdnsiface.so
 
-LIBDIR = ../lib
+TARGET_BIN = $(OUTDIR)/$(BIN_NAME)
+TARGET_LIB = $(OUTDIR)/$(LIB_NAME)
 
-.PHONY: all clean
+.PHONY: all clean install
 
-all: $(TARGET_SO) $(TARGET_EXE)
+all: $(TARGET_LIB) $(TARGET_BIN)
 
-$(TARGET_SO): $(IFACE_SRC) $(IFACE_HDR) | $(OUTDIR)
-	$(CC) -fPIC -shared -o $@ $<
+$(TARGET_LIB): $(OUTDIR) $(SRC_LIB)
+	$(CC) $(CFLAGS) -shared -o $@ $(SRC_LIB) $(LDFLAGS)
 
-$(TARGET_EXE): $(DNS_SRC) $(IFACE_SRC) $(IFACE_HDR) | $(OUTDIR)
-	$(CC) $(CFLAGS) -o $@ $(DNS_SRC) $(IFACE_SRC) $(LDFLAGS)
+$(TARGET_BIN): $(OUTDIR) $(SRC_BIN)
+	$(CC) $(CFLAGS) -o $@ $(SRC_BIN) $(LDFLAGS)
 
 $(OUTDIR):
-	mkdir -p $(OUTDIR)
+	mkdir -p $@
+
+install: $(TARGET_LIB) | $(LIBDIR)
+	cp -f $< $(LIBDIR)/
+
+$(LIBDIR):
+	mkdir -p $@
 
 clean:
 	rm -rf $(OUTDIR)
-
-install: $(TARGET_SO) | $(LIBDIR)
-	cp -f $(TARGET_SO) $(LIBDIR)/
-
-$(LIBDIR):
-	mkdir -p $(LIBDIR)

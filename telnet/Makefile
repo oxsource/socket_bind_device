@@ -1,23 +1,31 @@
-CC = gcc
-CFLAGS = -Wall -O2
-LIBDIR = ../lib
-LDFLAGS = -L$(LIBDIR) -ldnsiface -lsocketiface
+CC       = gcc
+CFLAGS   = -Wall -O2 -fPIC
+LDFLAGS  = -L$(LIBDIR) -ldnsiface -lsocketiface
 
-OUTDIR = out
-TARGET = telnet
-SRC = telnet.c
+SRCDIR   = src
+OUTDIR   = out
+LIBDIR   = ../lib
 
-.PHONY: all clean run
+SRC_BIN  := $(SRCDIR)/telnet.c
 
-all: $(OUTDIR)/$(TARGET)
+BIN_NAME = telnet
 
-$(OUTDIR)/$(TARGET): $(SRC)
-	@mkdir -p $(OUTDIR)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+TARGET_BIN = $(OUTDIR)/$(BIN_NAME)
+
+.PHONY: all clean
+
+all: $(TARGET_BIN)
+
+$(TARGET_BIN): $(OUTDIR) $(SRC_BIN)
+	$(CC) $(CFLAGS) -o $@ $(SRC_BIN) $(LDFLAGS)
+
+$(OUTDIR):
+	mkdir -p $@
+
+clean:
+	rm -rf $(OUTDIR)
 
 run: all
 	LD_LIBRARY_PATH=$(LIBDIR):$$LD_LIBRARY_PATH \
-	$(OUTDIR)/$(TARGET) $(ARGS)
+	$(TARGET_BIN) $(ARGS)
 
-clean:
-	rm -rf $(OUTDIR)/${TARGET}

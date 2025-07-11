@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
     const char* server = "223.5.5.5";
     const char* iface = NULL;
     int opt;
-    while ((opt = getopt(argc, argv, "I:d:t:")) != -1) {
+    while ((opt = getopt(argc, argv, "I:")) != -1) {
         switch (opt) {
             case 'I': iface = optarg; break;
             default:

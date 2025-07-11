@@ -1,33 +1,39 @@
-CC = gcc
-CFLAGS = -Wall -O2 -fPIC
-LDFLAGS = -shared
-OUTDIR = out
-LIBDIR = ../lib
+CC       = gcc
+CFLAGS   = -Wall -O2 -fPIC
+LDFLAGS  =
 
-LIB_SRC = src/socket_iface.c
-LIB_HDR = src/socket_iface.h
-LIB_TARGET = libsocketiface.so
+SRCDIR   = src
+OUTDIR   = out
+LIBDIR   = ../lib
 
-APP_SRC = src/socket.c
-APP_TARGET = socket
+SRC_LIB  := $(SRCDIR)/socket_iface.c
+SRC_BIN  := $(SRCDIR)/socket.c $(SRC_LIB)
 
-all: $(OUTDIR)/$(LIB_TARGET) $(OUTDIR)/$(APP_TARGET)
+BIN_NAME = socket
+LIB_NAME = libsocketiface.so
 
-$(OUTDIR)/$(LIB_TARGET): $(LIB_SRC)
-	@mkdir -p $(OUTDIR)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
+TARGET_BIN = $(OUTDIR)/$(BIN_NAME)
+TARGET_LIB = $(OUTDIR)/$(LIB_NAME)
 
-$(OUTDIR)/$(APP_TARGET): $(APP_SRC) $(OUTDIR)/$(LIB_TARGET)
-	@mkdir -p $(OUTDIR)
-	$(CC) $(CFLAGS) -o $@ $< -L$(OUTDIR) -lsocketiface -Wl,-rpath=$(OUTDIR)
+.PHONY: all clean install
 
-install: $(OUTDIR)/$(LIB_TARGET) | $(LIBDIR)
+all: $(TARGET_LIB) $(TARGET_BIN)
+
+$(TARGET_LIB): $(OUTDIR) $(SRC_LIB)
+	$(CC) $(CFLAGS) -shared -o $@ $(SRC_LIB) $(LDFLAGS)
+
+$(TARGET_BIN): $(OUTDIR) $(SRC_BIN)
+	$(CC) $(CFLAGS) -o $@ $(SRC_BIN) $(LDFLAGS)
+
+$(OUTDIR):
+	mkdir -p $@
+
+install: $(TARGET_LIB) | $(LIBDIR)
 	cp -f $< $(LIBDIR)/
 
 $(LIBDIR):
-	mkdir -p $(LIBDIR)
+	mkdir -p $@
 
 clean:
 	rm -rf $(OUTDIR)
 
-.PHONY: all clean install
