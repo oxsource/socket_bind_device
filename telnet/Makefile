@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -O2
 LIBDIR = ../lib
-LDFLAGS = -L$(LIBDIR) -ldnsiface
+LDFLAGS = -L$(LIBDIR) -ldnsiface -lsocketiface
 
 OUTDIR = out
 TARGET = telnet
@@ -16,7 +16,6 @@ $(OUTDIR)/$(TARGET): $(SRC)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 run: all
-	LD_PRELOAD=$(LIBDIR)/libsocketdevice.so \
 	LD_LIBRARY_PATH=$(LIBDIR):$$LD_LIBRARY_PATH \
 	$(OUTDIR)/$(TARGET) $(ARGS)
 

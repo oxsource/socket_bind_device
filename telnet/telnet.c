@@ -7,7 +7,13 @@
 #include <getopt.h>
 
 extern int dns_iface(const char* domain, const char* server, const char* iface, const char* type, struct in_addr** addrs, int *count);
+extern int socket_iface_opt(const char* device);
+extern int socket_iface(int domain, int type, int protocol);
 static const char *_SOCKET_DNS_SERVER = "223.5.5.5";
+
+int socket(int domain, int type, int protocol) {
+    return socket_iface(domain, type, protocol);
+}
 
 int main(int argc, char *argv[]) {
     const char* server = _SOCKET_DNS_SERVER;
@@ -38,11 +44,10 @@ int main(int argc, char *argv[]) {
     dns_iface(domain, server, iface, type, &addrs, &count);
     char ip_str[INET_ADDRSTRLEN];
 
-    struct sockaddr_in addr = {
-        .sin_family = AF_INET,
-        .sin_port = htons(80),
-        .sin_addr.s_addr = 0
-    };
+    struct sockaddr_in addr;
+    memset(&addr, 0, sizeof(addr));
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(80);
 
     if (count > 0) {
         addr.sin_addr.s_addr = addrs->s_addr;
@@ -55,7 +60,7 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "dns resove IP failed.\n");
         return 1;
     }
-    setenv("SOCKET_DEVICE_NAME", iface, 1);
+    socket_iface_opt(iface);
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) {
         perror("socket");
