@@ -1,6 +1,7 @@
 CC       = gcc
 CFLAGS   = -Wall -O2 -fPIC
 LDFLAGS  =
+LDLIBS   = -ldl
 
 SRCDIR   = src
 OUTDIR   = out
@@ -20,10 +21,10 @@ TARGET_LIB = $(OUTDIR)/$(LIB_NAME)
 all: $(TARGET_LIB) $(TARGET_BIN)
 
 $(TARGET_LIB): $(OUTDIR) $(SRC_LIB)
-	$(CC) $(CFLAGS) -shared -o $@ $(SRC_LIB) $(LDFLAGS)
+	$(CC) $(CFLAGS) -shared -o $@ $(SRC_LIB) $(LDFLAGS) $(LDLIBS)
 
 $(TARGET_BIN): $(OUTDIR) $(SRC_BIN)
-	$(CC) $(CFLAGS) -o $@ $(SRC_BIN) $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $@ $(SRC_BIN) $(LDFLAGS) $(LDLIBS)
 
 $(OUTDIR):
 	mkdir -p $@

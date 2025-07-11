@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <dlfcn.h>
 #include <sys/types.h>
 #include <sys/socket.h>
