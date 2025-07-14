@@ -1,8 +1,8 @@
-SUBDIRS := dns socket telnet
+SUBDIRS := dns socket telnet curl
 
 .PHONY: all clean install $(SUBDIRS)
 
-all: dns socket telnet
+all: dns socket telnet curl
 
 dns socket:
 	@echo "==== Building $@ ===="
@@ -16,6 +16,10 @@ install: dns socket
 
 telnet: install
 	@echo "==== Building telnet ===="
+	@$(MAKE) -C $@
+
+curl: install
+	@echo "==== Building curl ===="
 	@$(MAKE) -C $@
 
 clean:
