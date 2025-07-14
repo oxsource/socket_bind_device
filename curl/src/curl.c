@@ -72,10 +72,15 @@ int main(int argc, char *argv[]) {
     CURLcode res;
 
     curl_global_init(CURL_GLOBAL_DEFAULT);
+    /*ubuntu: sudo apt install --reinstall libcurl4-openssl-dev*/
     curl = curl_easy_init();
     if(curl) {
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5L);
+
+        /* curl also support bind interface */
+        // curl_easy_setopt(curl, CURLOPT_INTERFACE, iface);
 
         curl_easy_setopt(curl, CURLOPT_URL, url);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
