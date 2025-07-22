@@ -32,11 +32,12 @@ int main(int argc, char *argv[]) {
     }
 
     const char* domain = argv[optind];
-    struct in_addr* addrs = NULL;
+    struct dnsaddr* addrs = NULL;
     int count = 0;
     dns_iface(domain, server, iface, type, &addrs, &count);
     for (int i = 0; i < count; i++) {
-        printf("[DNS Answer] Domain: %s, Type: %s, IP : %s\n", domain, type, inet_ntoa(*(addrs + i)));
+        struct dnsaddr* addr = addrs + i;
+        printf("[DNS Answer] Domain: %s, Type: %s, IP : %s, TTL: %d.\n", domain, type, inet_ntoa(addr->addr), addr->ttl);
     }
     if (addrs) free(addrs);
     addrs = NULL;

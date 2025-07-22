@@ -6,7 +6,11 @@
 #include <net/if.h>
 #include <getopt.h>
 
-extern int dns_iface(const char* domain, const char* server, const char* iface, const char* type, struct in_addr** addrs, int *count);
+struct dnsaddr {
+    struct in_addr addr;
+    uint32_t ttl;
+};
+extern int dns_iface(const char* domain, const char* server, const char* iface, const char* type, struct dnsaddr** addrs, int *count);
 extern int socket_iface_opt(const char* device);
 extern int socket_iface(int domain, int type, int protocol);
 static const char *_SOCKET_DNS_SERVER = "223.5.5.5";
@@ -39,7 +43,7 @@ int main(int argc, char *argv[]) {
     const char* domain = argv[optind];
     printf("iface:%s, domain:%s\n", iface, domain);
 
-    struct in_addr* addrs = NULL;
+    struct dnsaddr* addrs = NULL;
     int count = 0;
     dns_iface(domain, server, iface, type, &addrs, &count);
     char ip_str[INET_ADDRSTRLEN];
@@ -50,11 +54,11 @@ int main(int argc, char *argv[]) {
     addr.sin_port = htons(80);
 
     if (count > 0) {
-        addr.sin_addr.s_addr = addrs->s_addr;
-        inet_ntop(AF_INET, addrs, ip_str, sizeof(ip_str));
+        addr.sin_addr.s_addr = addrs->addr.s_addr;
+        inet_ntop(AF_INET, &(addrs->addr), ip_str, sizeof(ip_str));
         printf("Resolved IP: %s\n", ip_str);
     }
-    if (addrs) free(addrs);
+    free(addrs);
     addrs = NULL;
     if (count <= 0) {
         fprintf(stderr, "dns resove IP failed.\n");

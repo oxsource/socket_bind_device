@@ -88,7 +88,7 @@ static unsigned short getQueryType(const char* type) {
     return 1;
 }
 
-int dns_iface(const char* domain, const char* server, const char* iface, const char* type, struct in_addr** addrs, int *count) {
+int dns_iface(const char* domain, const char* server, const char* iface, const char* type, struct dnsaddr** addrs, int *count) {
     unsigned char buffer[65536], *qname, *reader;
     struct sockaddr_in dest;
     struct timeval start, end;
@@ -173,12 +173,14 @@ int dns_iface(const char* domain, const char* server, const char* iface, const c
         reader += sizeof(struct QUESTION);
     }
 
-    *addrs = malloc(sizeof(struct in_addr) * ntohs(dns->ans_count));
-    if (!addrs) {
+    const size_t addr_bytes = sizeof(struct dnsaddr) * ntohs(dns->ans_count);
+    *addrs = malloc(addr_bytes);
+    if (!*addrs) {
         perror("malloc addrs failed.");
         close(sockfd);
         return -6;
     }
+    memset(*addrs, 0, addr_bytes);
     int stop;
     for (int i = 0; i < ntohs(dns->ans_count); i++) {
         unsigned char *name = ReadName(reader, buffer, &stop);
@@ -188,7 +190,9 @@ int dns_iface(const char* domain, const char* server, const char* iface, const c
         reader += sizeof(struct R_DATA);
 
         if (ntohs(resource->type) == 1) {
-            memcpy(&((*addrs)[(*count)++].s_addr), reader, sizeof(in_addr_t));
+            struct dnsaddr* addr = &((*addrs)[(*count)++]);
+            addr->ttl = ntohl(resource->ttl);
+            memcpy(&(addr->addr), reader, sizeof(in_addr_t));
         }
         reader += ntohs(resource->data_len);
         free(name);
